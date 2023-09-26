@@ -7,8 +7,9 @@ namespace SplitBuildingLimits;
 
 public class Program
 {
+    // Update this to the relevant path
     private static readonly string RootFolderPath = "C:/MyWork/Dev/Repos/AutoDeskTestProj/SplitBuildingLimits/SplitBuildingLimits/";
-    // Update these to the relevant paths
+    
     private static readonly string BuildingLimitsFilePath = RootFolderPath + "samples/SampleBuildingLimits.json";
     private static readonly string SampleHeightPlateausFilePath = RootFolderPath + "samples/SampleHeightPlateaus.json";
 
