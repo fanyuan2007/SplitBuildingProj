@@ -69,48 +69,48 @@ namespace SplitBuildingLimits
             return false;
         }
 
-        //public static List<IFeature> MergePolygonsWithOverlaps(List<IFeature> polygons)
-        //{
-        //    var mergedPolygons = new List<IFeature>();
+        public static List<IFeature> MergePolygonsWithOverlaps(List<IFeature> polygons)
+        {
+            var mergedPolygons = new List<IFeature>();
 
-        //    int i = 0;
-        //    while (i < polygons.Count)
-        //    {
-        //        var currentPolygon = polygons[i];
-        //        var overlappedPolygons = new List<IFeature> { currentPolygon };
+            int i = 0;
+            while (i < polygons.Count)
+            {
+                var currentPolygon = polygons[i];
+                var overlappedPolygons = new List<IFeature> { currentPolygon };
 
-        //        for (var j = i+1; j < polygons.Count; j++) 
-        //        {
-        //            if (currentPolygon.Geometry.Intersects(polygons[j].Geometry))
-        //            {
-        //                if (j != i+1)
-        //                {
-        //                    var temp = polygons[j];
-        //                    polygons[j] = polygons[i + 1];
-        //                    polygons[i + 1] = temp;
-        //                }
-        //                overlappedPolygons.Add(polygons[j]);
-        //                i++;
-        //            }
-        //        }
+                for (var j = i + 1; j < polygons.Count; j++)
+                {
+                    if (currentPolygon.Geometry.Intersects(polygons[j].Geometry))
+                    {
+                        if (j != i + 1)
+                        {
+                            var temp = polygons[j];
+                            polygons[j] = polygons[i + 1];
+                            polygons[i + 1] = temp;
+                        }
+                        overlappedPolygons.Add(polygons[j]);
+                        i++;
+                    }
+                }
 
-        //        if (overlappedPolygons.Count > 1)
-        //        {
-        //            var unionOp = new UnaryUnionOp(overlappedPolygons.Select(poly => poly.Geometry));
-        //            var mergedGeom = unionOp.Union();
-        //            var mergedPolygon = new Feature(mergedGeom, new AttributesTable());
+                if (overlappedPolygons.Count > 1)
+                {
+                    var unionOp = new UnaryUnionOp(overlappedPolygons.Select(poly => poly.Geometry));
+                    var mergedGeom = unionOp.Union();
+                    var mergedPolygon = new Feature(mergedGeom, new AttributesTable());
 
-        //            mergedPolygons.Add(mergedPolygon);
-        //        }
-        //        else
-        //        {
-        //            mergedPolygons.Add(currentPolygon);
-        //        }
+                    mergedPolygons.Add(mergedPolygon);
+                }
+                else
+                {
+                    mergedPolygons.Add(currentPolygon);
+                }
 
-        //        i++;
-        //    }
+                i++;
+            }
 
-        //    return mergedPolygons;
-        //}
+            return mergedPolygons;
+        }
     }
 }

@@ -3,6 +3,8 @@ namespace SplitBuildingLimits;
 
 public static class SplitBuildingLimitsClass<TPolygon> where TPolygon : IFeature
 {
+    private static readonly double defaultElevation = 9999.0;
+    private static readonly string ElevationKey = "elevation";
     /**
     * Example usage: 
     * GetPolygonMember<double>(polygon, "elevation"); // Returns the elevation property corresponding to the polygon if it exists, else null
@@ -22,17 +24,19 @@ public static class SplitBuildingLimitsClass<TPolygon> where TPolygon : IFeature
      * <param name="buildingLimits"> A list of buildings limits. A building limit is a polygon indicating where building can happen. </param>
      * <param name="heightPlateaus"> A list of height plateaus. A height plateau is a discrete polygon with a constant elevation. </param>
      */
-    public static void SplitBuildingLimits(List<IFeature> buildingLimits, List<IFeature> heightPlateaus)
+    public static List<IFeature> SplitBuildingLimits(List<IFeature> buildingLimits, List<IFeature> heightPlateaus)
     {
         Console.WriteLine("Splitting building limits according to height plateaus");
         // Step 1: Input validation
         Validate(buildingLimits, heightPlateaus);
 
-        Console.WriteLine("Start splitting...");
         // Step 2: Split building limits processing
-        //var mergedBuildingLimits = GeometryOperations<IFeature>.MergePolygonsWithOverlaps(buildingLimits);
-
+        Console.WriteLine("Start splitting...");
+        var mergedBuildingLimits = GeometryOperations<IFeature>.MergePolygonsWithOverlaps(buildingLimits);
+        var results = BuildingLimitsSplitting(mergedBuildingLimits, heightPlateaus);
         Console.WriteLine("Finished splitting...");
+
+        return results;
     }
 
     /// <summary>
@@ -46,6 +50,7 @@ public static class SplitBuildingLimitsClass<TPolygon> where TPolygon : IFeature
 
         ValidatePolygons(heightPlateaus, "Height Plateaus");
         ValidatePolygonWithoutOverlaps(heightPlateaus, "Height Plateaus");
+        ValidateElevationAttribute(heightPlateaus, "Height Plateaus", ElevationKey);
     }
 
     /// <summary>
@@ -91,8 +96,74 @@ public static class SplitBuildingLimitsClass<TPolygon> where TPolygon : IFeature
         }
     }
 
-    private static void BuildingLimitsSplitting(List<IFeature> buildingLimits, List<IFeature> heightPlateaus)
+    private static void ValidateElevationAttribute(List<IFeature> polygons, string polygonType, string attrbuteKey)
     {
+        if (polygons == null || polygons.Count == 0)
+        {
+            throw new ArgumentNullException($"Error: The input polygon list {polygonType} cannot be null or empty.");
+        }
 
+        foreach(IFeature polygon in polygons)
+        {
+            if (polygon.Attributes == null || 
+                polygon.Attributes.Count == 0 || 
+                !polygon.Attributes.Exists(attrbuteKey))
+            {
+                throw new ArgumentException($"Error: The input polygon list {polygonType} contains polygon with missing attribute {attrbuteKey}");
+            }
+        }
+    }
+
+    /// <summary>
+    /// Splitting the building limits with the height plateaus list
+    /// </summary>
+    /// <param name="buildingLimits">The input merged building limits list</param>
+    /// <param name="heightPlateaus">The input height plateaus list</param>
+    /// <returns>A list of updated building limits with elevation attribute</returns>
+    private static List<IFeature> BuildingLimitsSplitting(List<IFeature> buildingLimits, List<IFeature> heightPlateaus)
+    {
+        var resultBLs = new List<IFeature>();
+        for (int i = 0; i < buildingLimits.Count; i++)
+        {
+            var currentBuildingLimit = buildingLimits[i];
+            // Initialize the attribute table with a default elevation attribute
+            var currentAttributes = currentBuildingLimit.Attributes;
+            if (currentAttributes.Exists(ElevationKey))
+            {
+                currentAttributes[ElevationKey] = defaultElevation;
+            }
+            else
+            {
+                currentAttributes.Add(ElevationKey, defaultElevation);
+            }
+
+            // Check the current Building Limit against the height plateaus list to find overlaps
+            // 1) If overlaps found, add a new building list with the attribute set to the overlapped height plateaus elevation value and update the current building limit geometry
+            // 2) If no overlap found, just assign a default elevation value to the building limit and add to the result list
+            var remainingBuildingLimitGeom = currentBuildingLimit.Geometry;
+            for (int j = 0; j < heightPlateaus.Count; j++)
+            {
+                var currentHP = heightPlateaus[j];
+                if (currentBuildingLimit.Geometry.Overlaps(currentHP.Geometry))
+                {
+                    var intersectGeom = remainingBuildingLimitGeom.Intersection(currentHP.Geometry);
+                    
+                    currentAttributes[ElevationKey] = currentHP.Attributes[ElevationKey];
+                    var newFeature = new Feature(intersectGeom, currentAttributes);
+                    resultBLs.Add(newFeature);
+
+                    remainingBuildingLimitGeom = remainingBuildingLimitGeom.Difference(intersectGeom);
+                }
+            }
+
+            if (remainingBuildingLimitGeom != null)
+            {
+                currentAttributes[ElevationKey] = defaultElevation;
+                var newFeature = new Feature(remainingBuildingLimitGeom, currentAttributes);
+                resultBLs.Add(newFeature);
+            }
+        }
+
+        return resultBLs;
     }
 }
