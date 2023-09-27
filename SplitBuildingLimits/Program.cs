@@ -1,7 +1,7 @@
-﻿using System.Text;
-using NetTopologySuite.Features;
+﻿using NetTopologySuite.Features;
 using NetTopologySuite.IO;
 using Newtonsoft.Json;
+using System.Text;
 
 namespace SplitBuildingLimits;
 
@@ -9,7 +9,7 @@ public class Program
 {
     // Update this to the relevant path
     private static readonly string RootFolderPath = "C:/MyWork/Dev/Repos/AutoDeskTestProj/SplitBuildingLimits/SplitBuildingLimits/";
-    
+
     private static readonly string BuildingLimitsFilePath = RootFolderPath + "samples/SampleBuildingLimits.json";
     private static readonly string SampleHeightPlateausFilePath = RootFolderPath + "samples/SampleHeightPlateaus.json";
 
@@ -51,13 +51,17 @@ public class Program
         foreach (var feature in result)
         {
             Console.WriteLine(i.ToString());
-            Console.WriteLine(feature.Geometry.Coordinates.ToString());
+            for (int j = 0; j < feature.Geometry.NumPoints; j++)
+            {
+                var coord = feature.Geometry.Coordinates[j];
+                Console.WriteLine($"{coord.X}, {coord.Y}");
+            }
             Console.WriteLine(feature.Attributes["elevation"]);
             i++;
         }
     }
-    
-    
+
+
     public static void Main()
     {
         var sampleBuildingLimits = ReadFile(BuildingLimitsFilePath);

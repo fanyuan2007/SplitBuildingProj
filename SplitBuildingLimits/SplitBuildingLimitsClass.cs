@@ -13,7 +13,7 @@ public static class SplitBuildingLimitsClass<TPolygon> where TPolygon : IFeature
     */
     private static T GetPolygonMember<T>(TPolygon polygon, string key)
     {
-        return (T) polygon.Attributes.GetOptionalValue(key);
+        return (T)polygon.Attributes.GetOptionalValue(key);
     }
 
     /**
@@ -116,10 +116,10 @@ public static class SplitBuildingLimitsClass<TPolygon> where TPolygon : IFeature
             throw new ArgumentNullException($"Error: The input polygon list {polygonType} cannot be null or empty.");
         }
 
-        foreach(IFeature polygon in polygons)
+        foreach (IFeature polygon in polygons)
         {
-            if (polygon.Attributes == null || 
-                polygon.Attributes.Count == 0 || 
+            if (polygon.Attributes == null ||
+                polygon.Attributes.Count == 0 ||
                 !polygon.Attributes.Exists(attrbuteKey))
             {
                 throw new ArgumentException($"Error: The input polygon list {polygonType} contains polygon with missing attribute {attrbuteKey}");
@@ -147,7 +147,7 @@ public static class SplitBuildingLimitsClass<TPolygon> where TPolygon : IFeature
             for (int j = 0; j < heightPlateaus.Count; j++)
             {
                 var currentHP = heightPlateaus[j];
-                if (currentBuildingLimit.Geometry.Overlaps(currentHP.Geometry))
+                if (currentBuildingLimit.Geometry.Overlaps(currentHP.Geometry) ||       currentBuildingLimit.Geometry.Covers(currentHP.Geometry))
                 {
                     var intersectGeom = remainingBuildingLimitGeom.Intersection(currentHP.Geometry);
                     var newAttributes = new AttributesTable

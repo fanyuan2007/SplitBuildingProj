@@ -1,10 +1,5 @@
 ﻿using NetTopologySuite.Features;
 using NetTopologySuite.Operation.Union;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SplitBuildingLimits
 {
@@ -27,7 +22,7 @@ namespace SplitBuildingLimits
                 return false;
             }
 
-            if (polygon.Geometry.IsEmpty || 
+            if (polygon.Geometry.IsEmpty ||
                 !polygon.Geometry.IsValid)
             {
                 return false;
@@ -64,7 +59,7 @@ namespace SplitBuildingLimits
                 // May log the operation failing error message here first
                 throw new Exception("Error: Failed on polygon overlap validation operation.");
             }
-            
+
             return false;
         }
 
