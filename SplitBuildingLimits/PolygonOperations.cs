@@ -22,8 +22,7 @@ namespace SplitBuildingLimits
                 return false;
             }
 
-            if (polygon.Geometry == null ||
-                polygon.BoundingBox == null)
+            if (polygon.Geometry == null)
             {
                 return false;
             }
@@ -60,9 +59,9 @@ namespace SplitBuildingLimits
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                // May log the operation failing error message somewhere first
+                // May log the operation failing error message here first
                 throw new Exception("Error: Failed on polygon overlap validation operation.");
             }
             
