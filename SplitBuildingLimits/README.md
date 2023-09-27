@@ -58,8 +58,11 @@ makes some modifications to the building limits while Mary changes the height
 plateaus. What happens if they call the API at the same time? Make sure the API 
 deals with concurrent updates.
 - Thoughts: 
-    - Modifications to the inputs concurrently will result in different results obtained
+    - Modifications to the inputs concurrently will result in different results
     - To avoid this happening, we may add a lock to the API call
+    - Q: Are we trying to avoid concurrent modification or to avoid getting different results with concurrent changes to the input?
+        - Former one: May add lock to the file operation
+        - Latter one: Add lock to the input list modification (setter call) ==> in real project it may stay in memory rather than read from the file
 
 ### Building limits spliting process
 - Thoughts:
