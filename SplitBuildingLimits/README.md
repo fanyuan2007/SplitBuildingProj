@@ -37,12 +37,13 @@ elevation of the corresponding height plateau set as a property
         - Return Error for intersecting HP. As it may results in ambiguous area to the same space which may need further validation from the user
     - Action:
         - Throw an invalid input exception when overlapped area on HP input detected.
+    - Added a validation to the existance of the elevation attribute
 - Building limits (BL) intersecting one another 
     - Thoughts:
         - Building limits itself doesn't result ambiguous for overlapped areas from input sequences, we may just merge the area for further processing
     - Action:
         - Execute a union operation to the input building limits list
-- Height plateaus not completely covering the building limits 
+- Height plateaus not completely covering the building limits
     - Thoughts:
         - There might be two ways to handle the case:
             - 1) Return an Error and let the user to fix the issue. If every single area of the building limits has to have the HP feature.

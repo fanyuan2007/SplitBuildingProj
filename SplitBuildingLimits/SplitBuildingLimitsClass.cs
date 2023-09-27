@@ -101,6 +101,14 @@ public static class SplitBuildingLimitsClass<TPolygon> where TPolygon : IFeature
         }
     }
 
+    /// <summary>
+    /// Validate the existance of the attribute in each polygon
+    /// </summary>
+    /// <param name="polygons">The input polygon list</param>
+    /// <param name="polygonType">The type of the input polygon, for error message output</param>
+    /// <param name="attrbuteKey">The attribute name to be checked</param>
+    /// <exception cref="ArgumentNullException">If the input polygon list is null</exception>
+    /// <exception cref="ArgumentException">If any of the polygon in the list is invalid</exception>
     private static void ValidateElevationAttribute(List<IFeature> polygons, string polygonType, string attrbuteKey)
     {
         if (polygons == null || polygons.Count == 0)
