@@ -131,16 +131,6 @@ public static class SplitBuildingLimitsClass<TPolygon> where TPolygon : IFeature
         for (int i = 0; i < buildingLimits.Count; i++)
         {
             var currentBuildingLimit = buildingLimits[i];
-            // Initialize the attribute table with a default elevation attribute
-            var currentAttributes = currentBuildingLimit.Attributes;
-            if (currentAttributes.Exists(_elevationKey))
-            {
-                currentAttributes[_elevationKey] = _defaultElevation;
-            }
-            else
-            {
-                currentAttributes.Add(_elevationKey, _defaultElevation);
-            }
 
             // Check the current Building Limit against the height plateaus list to find overlaps
             // 1) If overlaps found, add a new building list with the attribute set to the overlapped height plateaus elevation value and update the current building limit geometry
@@ -152,9 +142,11 @@ public static class SplitBuildingLimitsClass<TPolygon> where TPolygon : IFeature
                 if (currentBuildingLimit.Geometry.Overlaps(currentHP.Geometry))
                 {
                     var intersectGeom = remainingBuildingLimitGeom.Intersection(currentHP.Geometry);
-                    
-                    currentAttributes[_elevationKey] = currentHP.Attributes[_elevationKey];
-                    var newFeature = new Feature(intersectGeom, currentAttributes);
+                    var newAttributes = new AttributesTable
+                    {
+                        { _elevationKey, currentHP.Attributes[_elevationKey] }
+                    };
+                    var newFeature = new Feature(intersectGeom, newAttributes);
                     resultBLs.Add(newFeature);
 
                     remainingBuildingLimitGeom = remainingBuildingLimitGeom.Difference(intersectGeom);
@@ -163,8 +155,12 @@ public static class SplitBuildingLimitsClass<TPolygon> where TPolygon : IFeature
 
             if (remainingBuildingLimitGeom != null)
             {
-                currentAttributes[_elevationKey] = _defaultElevation;
-                var newFeature = new Feature(remainingBuildingLimitGeom, currentAttributes);
+                if (!currentBuildingLimit.Attributes.Exists(_elevationKey))
+                {
+                    currentBuildingLimit.Attributes.Add(_elevationKey, _defaultElevation);
+                }
+                currentBuildingLimit.Attributes[_elevationKey] = _defaultElevation;
+                var newFeature = new Feature(remainingBuildingLimitGeom, currentBuildingLimit.Attributes);
                 resultBLs.Add(newFeature);
             }
         }

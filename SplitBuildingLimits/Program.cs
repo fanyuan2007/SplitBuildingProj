@@ -44,6 +44,18 @@ public class Program
     {
         return featureCollection.Where((feature) => feature.Geometry.GeometryType == "Polygon").ToList();
     }
+
+    private static void PrintResult(List<IFeature> result)
+    {
+        int i = 0;
+        foreach (var feature in result)
+        {
+            Console.WriteLine(i.ToString());
+            Console.WriteLine(feature.Geometry.Coordinates.ToString());
+            Console.WriteLine(feature.Attributes["elevation"]);
+            i++;
+        }
+    }
     
     
     public static void Main()
@@ -57,6 +69,8 @@ public class Program
         List<IFeature> buildingLimitPolygons = FilterPolygonsFromFeatureCollection(buildingLimitsFeatureCollection);
         List<IFeature> heightPlateausPolygons = FilterPolygonsFromFeatureCollection(heightPlateausFeatureCollection);
 
-        SplitBuildingLimitsClass<IFeature>.SplitBuildingLimits(buildingLimitPolygons, heightPlateausPolygons);
+        var results = SplitBuildingLimitsClass<IFeature>.SplitBuildingLimits(buildingLimitPolygons, heightPlateausPolygons);
+
+        PrintResult(results);
     }
 }
